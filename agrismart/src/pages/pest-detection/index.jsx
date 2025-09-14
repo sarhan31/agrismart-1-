@@ -9,7 +9,7 @@ import TreatmentRecommendations from './components/TreatmentRecommendations';
 import PestGallery from './components/PestGallery';
 import WeatherRiskForecast from './components/WeatherRiskForecast';
 import CommunityReports from './components/CommunityReports';
-import { apiService } from '../../lib/api';
+// import { apiService } from '../../lib/api';
 
 const PestDetection = () => {
   const { t } = useTranslation();
@@ -25,32 +25,32 @@ const PestDetection = () => {
   // Fetch data from backend on component mount
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        // Fetch pest gallery data
-        const pestData = await apiService.getPestGallery();
-        setPestGalleryData(pestData);
-      } catch (error) {
-        console.warn('Failed to fetch pest gallery from backend, using mock data:', error);
-        // Keep using mock data if backend fails
-      }
+      // try {
+      //   // Fetch pest gallery data
+      //   const pestData = await apiService.getPestGallery();
+      //   setPestGalleryData(pestData);
+      // } catch (error) {
+      //   console.warn('Failed to fetch pest gallery from backend, using mock data:', error);
+      //   // Keep using mock data if backend fails
+      // }
 
-      try {
-        // Fetch community reports
-        const reportsData = await apiService.getCommunityReports();
-        setCommunityReportsData(reportsData);
-      } catch (error) {
-        console.warn('Failed to fetch community reports from backend, using mock data:', error);
-        // Keep using mock data if backend fails
-      }
+      // try {
+      //   // Fetch community reports
+      //   const reportsData = await apiService.getCommunityReports();
+      //   setCommunityReportsData(reportsData);
+      // } catch (error) {
+      //   console.warn('Failed to fetch community reports from backend, using mock data:', error);
+      //   // Keep using mock data if backend fails
+      // }
 
-      try {
-        // Fetch weather forecast
-        const weatherData = await apiService.getWeatherForecast();
-        setWeatherForecastData(weatherData);
-      } catch (error) {
-        console.warn('Failed to fetch weather forecast from backend, using mock data:', error);
-        // Keep using mock data if backend fails
-      }
+      // try {
+      //   // Fetch weather forecast
+      //   const weatherData = await apiService.getWeatherForecast();
+      //   setWeatherForecastData(weatherData);
+      // } catch (error) {
+      //   console.warn('Failed to fetch weather forecast from backend, using mock data:', error);
+      //   // Keep using mock data if backend fails
+      // }
     };
 
     fetchData();

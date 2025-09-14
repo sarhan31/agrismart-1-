@@ -6,7 +6,7 @@ import Icon from '../../../components/AppIcon';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '../../../lib/api';
+// import { apiService } from '../../../lib/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
