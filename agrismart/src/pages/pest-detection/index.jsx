@@ -133,8 +133,8 @@ const PestDetection = () => {
   ];
 
 
-  // Mock data for weather forecast
-  const weatherForecastData = {
+  // Mock data for weather forecast (fallback)
+  const mockWeatherForecastData = {
     location: "Pune, Maharashtra",
     currentAlert: {
       level: "medium",
