@@ -6,6 +6,7 @@ import Icon from '../../../components/AppIcon';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
 import { useTranslation } from 'react-i18next';
+import { apiService } from '../../../lib/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -23,6 +24,19 @@ const LoginForm = () => {
     try {
       setIsLoading(true);
       const res = await signInWithPopup(auth, googleProvider);
+      
+      // Send Google auth data to backend
+      try {
+        await apiService.login({
+          email: res?.user?.email,
+          name: res?.user?.displayName,
+          provider: 'google',
+          idToken: await res?.user?.getIdToken()
+        });
+      } catch (apiError) {
+        console.warn('Backend login failed, using local auth:', apiError);
+      }
+      
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', res?.user?.email || '');
       navigate('/dashboard');
@@ -83,10 +97,25 @@ const LoginForm = () => {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Try backend API first
+      const response = await apiService.login({
+        email: formData?.email,
+        password: formData?.password
+      });
+      
+      // Successful login
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', formData?.email);
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
+      }
+      navigate('/dashboard');
+    } catch (error) {
+      // Fallback to mock credentials if backend fails
       if (formData?.email === mockCredentials?.email && formData?.password === mockCredentials?.password) {
-        // Successful login
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', formData?.email);
         if (rememberMe) {
@@ -96,13 +125,13 @@ const LoginForm = () => {
         }
         navigate('/dashboard');
       } else {
-        // Failed login
         setErrors({
-          general: `Invalid credentials. Use email: ${mockCredentials?.email} and password: ${mockCredentials?.password}`
+          general: error.message || `Invalid credentials. Use email: ${mockCredentials?.email} and password: ${mockCredentials?.password}`
         });
       }
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

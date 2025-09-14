@@ -6,6 +6,7 @@ import Button from '../../components/ui/Button';
 import MainSidebar from '../../components/ui/MainSidebar';
 import MobileNavigationBar from '../../components/ui/MobileNavigationBar';
 import LanguageSelector from '../login/components/LanguageSelector';
+import { apiService } from '../../lib/api';
 
 // Import all dashboard components
 import WeatherCard from './components/WeatherCard';
@@ -23,6 +24,15 @@ const Dashboard = ({ userData = null }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [dashboardData, setDashboardData] = useState({
+    weather: null,
+    cropYield: null,
+    soilHealth: null,
+    marketPrices: null,
+    alerts: [],
+    quickStats: null
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Default user data if none provided
   const defaultUserData = {
@@ -39,6 +49,37 @@ const Dashboard = ({ userData = null }) => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch dashboard data from backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const [weather, cropYield, soilHealth, marketPrices, analytics] = await Promise.allSettled([
+          apiService.getCurrentWeather(),
+          apiService.getCropYield(),
+          apiService.getSoilHealth(),
+          apiService.getMarketPrices(),
+          apiService.getAnalytics()
+        ]);
+
+        setDashboardData({
+          weather: weather.status === 'fulfilled' ? weather.value : null,
+          cropYield: cropYield.status === 'fulfilled' ? cropYield.value : null,
+          soilHealth: soilHealth.status === 'fulfilled' ? soilHealth.value : null,
+          marketPrices: marketPrices.status === 'fulfilled' ? marketPrices.value : null,
+          alerts: [], // Will be populated from analytics or separate endpoint
+          quickStats: analytics.status === 'fulfilled' ? analytics.value : null
+        });
+      } catch (error) {
+        console.warn('Failed to fetch dashboard data from backend:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
   useEffect(() => {
@@ -173,29 +214,29 @@ const Dashboard = ({ userData = null }) => {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Row 1 */}
             <div className="xl:col-span-1">
-              <WeatherCard />
+              <WeatherCard data={dashboardData.weather} isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <CropYieldCard />
+              <CropYieldCard data={dashboardData.cropYield} isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <MarketPriceCard />
+              <MarketPriceCard data={dashboardData.marketPrices} isLoading={isLoading} />
             </div>
 
             {/* Row 2 */}
             <div className="lg:col-span-2 xl:col-span-2">
-              <AlertsCard />
+              <AlertsCard data={dashboardData.alerts} isLoading={isLoading} />
             </div>
 
             {/* Row 3 */}
             <div className="xl:col-span-1">
-              <SoilHealthCard />
+              <SoilHealthCard data={dashboardData.soilHealth} isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <ScheduleCard />
+              <ScheduleCard isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <QuickStatsCard />
+              <QuickStatsCard data={dashboardData.quickStats} isLoading={isLoading} />
             </div>
           </div>
 
