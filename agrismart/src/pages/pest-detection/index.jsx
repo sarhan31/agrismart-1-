@@ -233,8 +233,8 @@ const PestDetection = () => {
     ]
   };
 
-  // Mock data for community reports
-  const [communityReportsData, setCommunityReportsData] = useState([
+  // Mock data for community reports (fallback)
+  const mockCommunityReportsData = [
     {
       id: 1,
       pestName: "Aphids",
@@ -283,7 +283,7 @@ const PestDetection = () => {
       description: "Small population of whiteflies observed on cotton plants. Using yellow sticky traps for monitoring.",
       contactInfo: false
     }
-  ]);
+  ];
 
   // Mock treatment recommendations
   const treatmentRecommendationsData = {
