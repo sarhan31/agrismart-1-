@@ -536,12 +536,12 @@ const PestDetection = () => {
 
 
             {activeTab === 'weather' && (
-              <WeatherRiskForecast forecast={weatherForecastData || weatherForecastData} />
+              <WeatherRiskForecast forecast={weatherForecastData || mockWeatherForecastData} />
             )}
 
             {activeTab === 'community' && (
               <CommunityReports 
-                reports={communityReportsData.length > 0 ? communityReportsData : communityReportsData}
+                reports={communityReportsData.length > 0 ? communityReportsData : mockCommunityReportsData}
                 onReportSubmit={handleReportSubmit}
               />
             )}
