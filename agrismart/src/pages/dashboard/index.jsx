@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import MainSidebar from '../../components/ui/MainSidebar';
 import MobileNavigationBar from '../../components/ui/MobileNavigationBar';
 import LanguageSelector from '../login/components/LanguageSelector';
-import { apiService } from '../../lib/api.js';
+import { apiService } from '../../lib/api';
 
 // Import all dashboard components
 import WeatherCard from './components/WeatherCard';

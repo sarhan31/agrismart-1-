@@ -9,7 +9,7 @@ import TreatmentRecommendations from './components/TreatmentRecommendations';
 import PestGallery from './components/PestGallery';
 import WeatherRiskForecast from './components/WeatherRiskForecast';
 import CommunityReports from './components/CommunityReports';
-import { apiService } from '../../lib/api.js';
+import { apiService } from '../../lib/api';
 
 const PestDetection = () => {
   const { t } = useTranslation();
