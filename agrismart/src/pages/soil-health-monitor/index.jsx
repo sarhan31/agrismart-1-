@@ -10,6 +10,7 @@ import SoilTrendChart from './components/SoilTrendChart';
 import SoilTestingCard from './components/SoilTestingCard';
 import SoilRecommendationCard from './components/SoilRecommendationCard';
 import SoilParameterFilter from './components/SoilParameterFilter';
+import { apiService } from '../../lib/api';
 
 const SoilHealthMonitor = () => {
   const { t } = useTranslation();
@@ -23,9 +24,37 @@ const SoilHealthMonitor = () => {
     startDate: '',
     endDate: ''
   });
+  const [soilHealthData, setSoilHealthData] = useState(null);
+  const [soilRecommendations, setSoilRecommendations] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock soil metrics data
-  const soilMetrics = [
+  // Fetch soil health data from backend
+  useEffect(() => {
+    const fetchSoilData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch soil health data
+        const healthData = await apiService.getSoilHealth();
+        setSoilHealthData(healthData);
+        
+        // Fetch soil recommendations
+        const recommendations = await apiService.getSoilRecommendations();
+        setSoilRecommendations(recommendations);
+        
+      } catch (error) {
+        console.warn('Failed to fetch soil data from backend, using mock data:', error);
+        // Keep using mock data as fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSoilData();
+  }, []);
+
+  // Use backend data if available, otherwise fallback to mock data
+  const soilMetrics = soilHealthData?.metrics || [
     {
       title: 'Nitrogen (N)',
       value: '45',

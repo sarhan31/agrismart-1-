@@ -139,14 +139,12 @@ const Select = React.forwardRef(({
                         )}
 
                         {clearable && hasValue && !loading && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-4 w-4"
+                            <div
+                                className="h-4 w-4 flex items-center justify-center cursor-pointer hover:bg-accent rounded"
                                 onClick={handleClear}
                             >
                                 <X className="h-3 w-3" />
-                            </Button>
+                            </div>
                         )}
 
                         <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />

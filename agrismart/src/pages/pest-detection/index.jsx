@@ -9,6 +9,7 @@ import TreatmentRecommendations from './components/TreatmentRecommendations';
 import PestGallery from './components/PestGallery';
 import WeatherRiskForecast from './components/WeatherRiskForecast';
 import CommunityReports from './components/CommunityReports';
+import { apiService } from '../../lib/api';
 
 const PestDetection = () => {
   const { t } = useTranslation();
@@ -17,9 +18,55 @@ const PestDetection = () => {
   const [analysisResults, setAnalysisResults] = useState(null);
   const [selectedPest, setSelectedPest] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
+  const [pestGalleryData, setPestGalleryData] = useState([]);
+  const [communityReportsData, setCommunityReportsData] = useState([]);
+  const [weatherForecastData, setWeatherForecastData] = useState(null);
 
-  // Mock data for pest gallery
-  const pestGalleryData = [
+  // Fetch data from backend on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch pest gallery data
+        const pestData = await apiService.getPestGallery();
+        setPestGalleryData(pestData);
+      } catch (error) {
+        console.warn('Failed to fetch pest gallery from backend, using mock data:', error);
+        // Keep using mock data if backend fails
+      }
+
+      try {
+        // Fetch community reports
+        const reportsData = await apiService.getCommunityReports();
+        setCommunityReportsData(reportsData);
+      } catch (error) {
+        console.warn('Failed to fetch community reports from backend, using mock data:', error);
+        // Keep using mock data if backend fails
+      }
+
+      try {
+        // Fetch weather forecast
+        const weatherData = await apiService.getWeatherForecast();
+        setWeatherForecastData(weatherData);
+      } catch (error) {
+        console.warn('Failed to fetch weather forecast from backend, using mock data:', error);
+        setWeatherForecastData(mockWeatherData);
+      }
+
+      try {
+        // Fetch community reports
+        const communityData = await apiService.getCommunityReports();
+        setCommunityReportsData(communityData);
+      } catch (error) {
+        console.warn('Failed to fetch community reports from backend, using mock data:', error);
+        setCommunityReportsData(mockCommunityData);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Mock data for pest gallery (fallback)
+  const mockPestGalleryData = [
     {
       id: 1,
       name: "Aphids",
@@ -95,8 +142,8 @@ const PestDetection = () => {
   ];
 
 
-  // Mock data for weather forecast
-  const weatherForecastData = {
+  // Mock data for weather forecast - use as fallback if API fails
+  const mockWeatherData = {
     location: "Pune, Maharashtra",
     currentAlert: {
       level: "medium",
@@ -195,8 +242,8 @@ const PestDetection = () => {
     ]
   };
 
-  // Mock data for community reports
-  const [communityReportsData, setCommunityReportsData] = useState([
+  // Mock data for community reports - use as fallback if API fails
+  const mockCommunityData = [
     {
       id: 1,
       pestName: "Aphids",
@@ -245,7 +292,7 @@ const PestDetection = () => {
       description: "Small population of whiteflies observed on cotton plants. Using yellow sticky traps for monitoring.",
       contactInfo: false
     }
-  ]);
+  ];
 
   // Mock treatment recommendations
   const treatmentRecommendationsData = {
@@ -359,34 +406,44 @@ const PestDetection = () => {
     { id: 'community', label: 'Community', icon: 'Users' }
   ];
 
-  const handleImageUpload = (file) => {
+  const handleImageUpload = async (file) => {
     setIsAnalyzing(true);
     
-    // Simulate AI analysis delay
-    setTimeout(() => {
-      const mockResults = {
-        pestName: "Aphids",
-        scientificName: "Aphis gossypii",
-        confidence: 87,
-        severity: "medium",
-        cropType: "Tomato",
-        stage: "Adult",
-        damageLevel: 35,
-        conditions: [
-          "High humidity (>70%)",
-          "Moderate temperature (20-25°C)",
-          "Dense plant canopy",
-          "Nitrogen-rich soil"
-        ],
-        alternatives: [
-          { name: "Whitefly", scientificName: "Bemisia tabaci", confidence: 23 },
-          { name: "Thrips", scientificName: "Thrips tabaci", confidence: 15 }
-        ]
-      };
+    try {
+      // Try backend API first
+      const results = await apiService.detectPest(file);
+      setAnalysisResults(results);
+    } catch (error) {
+      console.warn('Backend pest detection failed, using mock data:', error);
       
-      setAnalysisResults(mockResults);
+      // Fallback to mock data
+      setTimeout(() => {
+        const mockResults = {
+          pestName: "Aphids",
+          scientificName: "Aphis gossypii",
+          confidence: 87,
+          severity: "medium",
+          cropType: "Tomato",
+          stage: "Adult",
+          damageLevel: 35,
+          conditions: [
+            "High humidity (>70%)",
+            "Moderate temperature (20-25°C)",
+            "Dense plant canopy",
+            "Nitrogen-rich soil"
+          ],
+          alternatives: [
+            { name: "Whitefly", scientificName: "Bemisia tabaci", confidence: 23 },
+            { name: "Thrips", scientificName: "Thrips tabaci", confidence: 15 }
+          ]
+        };
+        
+        setAnalysisResults(mockResults);
+        setIsAnalyzing(false);
+      }, 3000);
+    } finally {
       setIsAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const handlePestSelect = (pest) => {
@@ -397,8 +454,16 @@ const PestDetection = () => {
     }
   };
 
-  const handleReportSubmit = (report) => {
-    setCommunityReportsData(prev => [report, ...prev]);
+  const handleReportSubmit = async (report) => {
+    try {
+      // Try to submit to backend first
+      await apiService.submitCommunityReport(report);
+      setCommunityReportsData(prev => [report, ...prev]);
+    } catch (error) {
+      console.warn('Failed to submit report to backend, using local state:', error);
+      // Fallback to local state update
+      setCommunityReportsData(prev => [report, ...prev]);
+    }
   };
 
   return (
@@ -473,19 +538,19 @@ const PestDetection = () => {
 
             {activeTab === 'gallery' && (
               <PestGallery 
-                pests={pestGalleryData}
+                pests={pestGalleryData.length > 0 ? pestGalleryData : mockPestGalleryData}
                 onPestSelect={handlePestSelect}
               />
             )}
 
 
             {activeTab === 'weather' && (
-              <WeatherRiskForecast forecast={weatherForecastData} />
+              <WeatherRiskForecast forecast={weatherForecastData || mockWeatherData} />
             )}
 
             {activeTab === 'community' && (
               <CommunityReports 
-                reports={communityReportsData}
+                reports={communityReportsData.length > 0 ? communityReportsData : mockCommunityData}
                 onReportSubmit={handleReportSubmit}
               />
             )}

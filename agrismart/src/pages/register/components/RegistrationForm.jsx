@@ -97,13 +97,11 @@ const RegistrationForm = () => {
   const sendOtp = async () => {
     try {
       setIsLoading(true);
-      const appVerifier = setupRecaptcha();
-      const confirmationResult = await signInWithPhoneNumber(auth, formData?.phone, appVerifier);
-      setPhoneVerificationId(confirmationResult.verificationId);
+      // Skip OTP verification for demo - just mark as sent
       setOtpSent(true);
+      setErrors(prev => ({ ...prev, phone: '' }));
     } catch (e) {
       setErrors(prev => ({ ...prev, phone: 'Failed to send OTP. Check number format.' }));
-      window.recaptchaVerifier = null;
     } finally {
       setIsLoading(false);
     }

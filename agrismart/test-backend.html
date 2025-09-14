@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Connection Test</title>
+</head>
+<body>
+    <h1>AgriSmart Backend Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const API_BASE_URL = 'https://agri-smart-c7vo.onrender.com';
+        const resultsDiv = document.getElementById('results');
+        
+        async function testBackend() {
+            resultsDiv.innerHTML = '<p>Testing backend connection...</p>';
+            
+            try {
+                // Test health endpoint
+                const healthResponse = await fetch(`${API_BASE_URL}/api/health`);
+                const healthData = await healthResponse.json();
+                resultsDiv.innerHTML += `<p>✅ Health Check: ${JSON.stringify(healthData)}</p>`;
+                
+                // Test login endpoint with demo data
+                const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'farmer@agrismart.com',
+                        password: 'harvest2024'
+                    })
+                });
+                
+                if (loginResponse.ok) {
+                    const loginData = await loginResponse.json();
+                    resultsDiv.innerHTML += `<p>✅ Login Test: Success</p>`;
+                } else {
+                    const errorData = await loginResponse.json();
+                    resultsDiv.innerHTML += `<p>❌ Login Test: ${JSON.stringify(errorData)}</p>`;
+                }
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        testBackend();
+    </script>
+</body>
+</html>

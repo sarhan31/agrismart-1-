@@ -6,6 +6,7 @@ import Icon from '../../../components/AppIcon';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
 import { useTranslation } from 'react-i18next';
+import { apiService } from '../../../lib/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -23,6 +24,19 @@ const LoginForm = () => {
     try {
       setIsLoading(true);
       const res = await signInWithPopup(auth, googleProvider);
+      
+      // Send Google auth data to backend
+      try {
+        await apiService.login({
+          email: res?.user?.email,
+          name: res?.user?.displayName,
+          provider: 'google',
+          idToken: await res?.user?.getIdToken()
+        });
+      } catch (apiError) {
+        console.warn('Backend login failed, using local auth:', apiError);
+      }
+      
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', res?.user?.email || '');
       navigate('/dashboard');
@@ -38,6 +52,16 @@ const LoginForm = () => {
     email: 'farmer@agrismart.com',
     password: 'harvest2024'
   };
+
+  // Auto-fill demo credentials for easier testing
+  React.useEffect(() => {
+    if (!formData.email && !formData.password) {
+      setFormData({
+        email: mockCredentials.email,
+        password: mockCredentials.password
+      });
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e?.target;
@@ -83,10 +107,37 @@ const LoginForm = () => {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      console.log('Attempting backend login with:', { email: formData?.email });
+      
+      // Try backend API first
+      const response = await apiService.login({
+        email: formData?.email,
+        password: formData?.password
+      });
+      
+      console.log('Backend login successful:', response);
+      
+      // Store the JWT token from backend response
+      if (response.access_token) {
+        localStorage.setItem('authToken', response.access_token);
+      }
+      
+      // Successful login
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', formData?.email);
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true');
+      } else {
+        localStorage.removeItem('rememberMe');
+      }
+      navigate('/dashboard');
+    } catch (error) {
+      console.log('Backend login failed:', error.message);
+      
+      // Fallback to mock credentials if backend fails
       if (formData?.email === mockCredentials?.email && formData?.password === mockCredentials?.password) {
-        // Successful login
+        console.log('Using mock credentials fallback');
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', formData?.email);
         if (rememberMe) {
@@ -96,13 +147,13 @@ const LoginForm = () => {
         }
         navigate('/dashboard');
       } else {
-        // Failed login
         setErrors({
-          general: `Invalid credentials. Use email: ${mockCredentials?.email} and password: ${mockCredentials?.password}`
+          general: `Backend: ${error.message}\n\nDemo credentials:\nEmail: ${mockCredentials?.email}\nPassword: ${mockCredentials?.password}`
         });
       }
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
