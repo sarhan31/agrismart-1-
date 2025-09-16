@@ -6,7 +6,6 @@ import Icon from '../../../components/AppIcon';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../../lib/firebase';
 import { useTranslation } from 'react-i18next';
-import { apiService } from '../../../lib/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -107,37 +106,10 @@ const LoginForm = () => {
     
     setIsLoading(true);
     
-    try {
-      console.log('Attempting backend login with:', { email: formData?.email });
-      
-      // Try backend API first
-      const response = await apiService.login({
-        email: formData?.email,
-        password: formData?.password
-      });
-      
-      console.log('Backend login successful:', response);
-      
-      // Store the JWT token from backend response
-      if (response.access_token) {
-        localStorage.setItem('authToken', response.access_token);
-      }
-      
-      // Successful login
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', formData?.email);
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
-      } else {
-        localStorage.removeItem('rememberMe');
-      }
-      navigate('/dashboard');
-    } catch (error) {
-      console.log('Backend login failed:', error.message);
-      
-      // Fallback to mock credentials if backend fails
+    // Simulate API call
+    setTimeout(() => {
       if (formData?.email === mockCredentials?.email && formData?.password === mockCredentials?.password) {
-        console.log('Using mock credentials fallback');
+        // Successful login
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('userEmail', formData?.email);
         if (rememberMe) {
@@ -148,7 +120,7 @@ const LoginForm = () => {
         navigate('/dashboard');
       } else {
         setErrors({
-          general: `Backend: ${error.message}\n\nDemo credentials:\nEmail: ${mockCredentials?.email}\nPassword: ${mockCredentials?.password}`
+          general: `Invalid credentials. Use email: ${mockCredentials?.email} and password: ${mockCredentials?.password}`
         });
       }
     } finally {
