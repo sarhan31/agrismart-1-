@@ -9,7 +9,6 @@ import TreatmentRecommendations from './components/TreatmentRecommendations';
 import PestGallery from './components/PestGallery';
 import WeatherRiskForecast from './components/WeatherRiskForecast';
 import CommunityReports from './components/CommunityReports';
-import { apiService } from '../../lib/api';
 
 const PestDetection = () => {
   const { t } = useTranslation();
@@ -18,55 +17,9 @@ const PestDetection = () => {
   const [analysisResults, setAnalysisResults] = useState(null);
   const [selectedPest, setSelectedPest] = useState(null);
   const [activeTab, setActiveTab] = useState('upload');
-  const [pestGalleryData, setPestGalleryData] = useState([]);
-  const [communityReportsData, setCommunityReportsData] = useState([]);
-  const [weatherForecastData, setWeatherForecastData] = useState(null);
 
-  // Fetch data from backend on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch pest gallery data
-        const pestData = await apiService.getPestGallery();
-        setPestGalleryData(pestData);
-      } catch (error) {
-        console.warn('Failed to fetch pest gallery from backend, using mock data:', error);
-        // Keep using mock data if backend fails
-      }
-
-      try {
-        // Fetch community reports
-        const reportsData = await apiService.getCommunityReports();
-        setCommunityReportsData(reportsData);
-      } catch (error) {
-        console.warn('Failed to fetch community reports from backend, using mock data:', error);
-        // Keep using mock data if backend fails
-      }
-
-      try {
-        // Fetch weather forecast
-        const weatherData = await apiService.getWeatherForecast();
-        setWeatherForecastData(weatherData);
-      } catch (error) {
-        console.warn('Failed to fetch weather forecast from backend, using mock data:', error);
-        setWeatherForecastData(mockWeatherData);
-      }
-
-      try {
-        // Fetch community reports
-        const communityData = await apiService.getCommunityReports();
-        setCommunityReportsData(communityData);
-      } catch (error) {
-        console.warn('Failed to fetch community reports from backend, using mock data:', error);
-        setCommunityReportsData(mockCommunityData);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Mock data for pest gallery (fallback)
-  const mockPestGalleryData = [
+  // Mock data for pest gallery
+  const pestGalleryData = [
     {
       id: 1,
       name: "Aphids",
@@ -142,8 +95,8 @@ const PestDetection = () => {
   ];
 
 
-  // Mock data for weather forecast - use as fallback if API fails
-  const mockWeatherData = {
+  // Mock data for weather forecast
+  const weatherForecastData = {
     location: "Pune, Maharashtra",
     currentAlert: {
       level: "medium",
@@ -242,8 +195,8 @@ const PestDetection = () => {
     ]
   };
 
-  // Mock data for community reports - use as fallback if API fails
-  const mockCommunityData = [
+  // Mock data for community reports
+  const [communityReportsData, setCommunityReportsData] = useState([
     {
       id: 1,
       pestName: "Aphids",
@@ -545,12 +498,12 @@ const PestDetection = () => {
 
 
             {activeTab === 'weather' && (
-              <WeatherRiskForecast forecast={weatherForecastData || mockWeatherData} />
+              <WeatherRiskForecast forecast={weatherForecastData} />
             )}
 
             {activeTab === 'community' && (
               <CommunityReports 
-                reports={communityReportsData.length > 0 ? communityReportsData : mockCommunityData}
+                reports={communityReportsData}
                 onReportSubmit={handleReportSubmit}
               />
             )}
