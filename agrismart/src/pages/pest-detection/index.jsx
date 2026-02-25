@@ -7,7 +7,6 @@ import ImageUploadArea from './components/ImageUploadArea';
 import AnalysisResults from './components/AnalysisResults';
 import TreatmentRecommendations from './components/TreatmentRecommendations';
 import PestGallery from './components/PestGallery';
-import DetectionHistory from './components/DetectionHistory';
 import WeatherRiskForecast from './components/WeatherRiskForecast';
 import CommunityReports from './components/CommunityReports';
 
@@ -27,10 +26,11 @@ const PestDetection = () => {
       scientificName: "Aphis gossypii",
       category: "insects",
       severity: "medium",
-      image: "https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg",
+      image: "/assets/images/aphids-new.jpg",
       affectedCrops: ["Tomato", "Pepper", "Cucumber", "Cotton"],
       symptoms: ["Yellowing leaves", "Sticky honeydew", "Curled leaves"],
-      season: "Spring-Summer"
+      season: "Spring-Summer",
+      wikipediaUrl: "https://en.wikipedia.org/wiki/Aphid"
     },
     {
       id: 2,
@@ -38,10 +38,11 @@ const PestDetection = () => {
       scientificName: "Phytophthora infestans",
       category: "diseases",
       severity: "high",
-      image: "https://images.pexels.com/photos/4750270/pexels-photo-4750270.jpeg",
+      image: "/assets/images/late-blight-new.jpg",
       affectedCrops: ["Tomato", "Potato"],
       symptoms: ["Dark lesions on leaves", "White fungal growth", "Fruit rot"],
-      season: "Monsoon"
+      season: "Monsoon",
+      wikipediaUrl: "https://en.wikipedia.org/wiki/Phytophthora_infestans"
     },
     {
       id: 3,
@@ -49,10 +50,11 @@ const PestDetection = () => {
       scientificName: "Bemisia tabaci",
       category: "insects",
       severity: "medium",
-      image: "https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg",
+      image: "/assets/images/whitefly-new.jpg",
       affectedCrops: ["Cotton", "Tomato", "Brinjal"],
       symptoms: ["Yellow sticky traps", "Sooty mold", "Leaf yellowing"],
-      season: "Year-round"
+      season: "Year-round",
+      wikipediaUrl: "https://en.wikipedia.org/wiki/Whitefly"
     },
     {
       id: 4,
@@ -60,10 +62,11 @@ const PestDetection = () => {
       scientificName: "Nutrient deficiency",
       category: "deficiencies",
       severity: "low",
-      image: "https://images.pexels.com/photos/4750271/pexels-photo-4750271.jpeg",
+      image: "/assets/images/Nitrogen_deficiency.jpeg",
       affectedCrops: ["Rice", "Wheat", "Corn"],
       symptoms: ["Yellowing of older leaves", "Stunted growth", "Poor yield"],
-      season: "Growing season"
+      season: "Growing season",
+      wikipediaUrl: "https://en.wikipedia.org/wiki/Nitrogen_deficiency"
     },
     {
       id: 5,
@@ -71,10 +74,11 @@ const PestDetection = () => {
       scientificName: "Thrips tabaci",
       category: "insects",
       severity: "medium",
-      image: "https://images.pexels.com/photos/6129508/pexels-photo-6129508.jpeg",
+      image: "/assets/images/thrips-new.jpg",
       affectedCrops: ["Onion", "Garlic", "Tomato"],
       symptoms: ["Silver streaks on leaves", "Black spots", "Leaf curling"],
-      season: "Summer"
+      season: "Summer",
+      wikipediaUrl: "https://en.wikipedia.org/wiki/Thrips"
     },
     {
       id: 6,
@@ -82,60 +86,14 @@ const PestDetection = () => {
       scientificName: "Erysiphe cichoracearum",
       category: "diseases",
       severity: "medium",
-      image: "https://images.pexels.com/photos/4750272/pexels-photo-4750272.jpeg",
+      image: "/assets/images/powdery-mildew-new.jpeg",
       affectedCrops: ["Cucumber", "Pumpkin", "Grapes"],
       symptoms: ["White powdery coating", "Leaf distortion", "Reduced photosynthesis"],
-      season: "Cool humid weather"
+      season: "Cool humid weather",
+      wikipediaUrl: "https://en.wikipedia.org/wiki/Powdery_mildew"
     }
   ];
 
-  // Mock data for detection history
-  const detectionHistoryData = [
-    {
-      id: 1,
-      pestName: "Aphids",
-      scientificName: "Aphis gossypii",
-      cropType: "Tomato",
-      severity: "medium",
-      confidence: 87,
-      date: "2025-01-08T10:30:00Z",
-      fieldLocation: "Field A-1",
-      treatmentApplied: "Neem oil spray",
-      status: "Resolved",
-      effectivenessRating: 4,
-      image: "https://images.pexels.com/photos/6129507/pexels-photo-6129507.jpeg",
-      notes: "Treatment was effective after 3 applications over 2 weeks."
-    },
-    {
-      id: 2,
-      pestName: "Late Blight",
-      scientificName: "Phytophthora infestans",
-      cropType: "Potato",
-      severity: "high",
-      confidence: 92,
-      date: "2025-01-05T14:15:00Z",
-      fieldLocation: "Field B-2",
-      treatmentApplied: "Copper fungicide",
-      status: "In Progress",
-      effectivenessRating: 3,
-      image: "https://images.pexels.com/photos/4750270/pexels-photo-4750270.jpeg",
-      notes: "Early detection helped prevent major crop loss."
-    },
-    {
-      id: 3,
-      pestName: "Whitefly",
-      scientificName: "Bemisia tabaci",
-      cropType: "Cotton",
-      severity: "low",
-      confidence: 78,
-      date: "2025-01-03T09:45:00Z",
-      fieldLocation: "Field C-3",
-      treatmentApplied: null,
-      status: "Monitoring",
-      image: "https://images.pexels.com/photos/8728380/pexels-photo-8728380.jpeg",
-      notes: "Population below economic threshold, continuing monitoring."
-    }
-  ];
 
   // Mock data for weather forecast
   const weatherForecastData = {
@@ -287,7 +245,7 @@ const PestDetection = () => {
       description: "Small population of whiteflies observed on cotton plants. Using yellow sticky traps for monitoring.",
       contactInfo: false
     }
-  ]);
+  ];
 
   // Mock treatment recommendations
   const treatmentRecommendationsData = {
@@ -397,49 +355,68 @@ const PestDetection = () => {
   const tabs = [
     { id: 'upload', label: 'Image Analysis', icon: 'Camera' },
     { id: 'gallery', label: 'Pest Gallery', icon: 'BookOpen' },
-    { id: 'history', label: 'History', icon: 'History' },
     { id: 'weather', label: 'Weather Risk', icon: 'CloudRain' },
     { id: 'community', label: 'Community', icon: 'Users' }
   ];
 
-  const handleImageUpload = (file) => {
+  const handleImageUpload = async (file) => {
     setIsAnalyzing(true);
     
-    // Simulate AI analysis delay
-    setTimeout(() => {
-      const mockResults = {
-        pestName: "Aphids",
-        scientificName: "Aphis gossypii",
-        confidence: 87,
-        severity: "medium",
-        cropType: "Tomato",
-        stage: "Adult",
-        damageLevel: 35,
-        conditions: [
-          "High humidity (>70%)",
-          "Moderate temperature (20-25°C)",
-          "Dense plant canopy",
-          "Nitrogen-rich soil"
-        ],
-        alternatives: [
-          { name: "Whitefly", scientificName: "Bemisia tabaci", confidence: 23 },
-          { name: "Thrips", scientificName: "Thrips tabaci", confidence: 15 }
-        ]
-      };
+    try {
+      // Try backend API first
+      const results = await apiService.detectPest(file);
+      setAnalysisResults(results);
+    } catch (error) {
+      console.warn('Backend pest detection failed, using mock data:', error);
       
-      setAnalysisResults(mockResults);
+      // Fallback to mock data
+      setTimeout(() => {
+        const mockResults = {
+          pestName: "Aphids",
+          scientificName: "Aphis gossypii",
+          confidence: 87,
+          severity: "medium",
+          cropType: "Tomato",
+          stage: "Adult",
+          damageLevel: 35,
+          conditions: [
+            "High humidity (>70%)",
+            "Moderate temperature (20-25°C)",
+            "Dense plant canopy",
+            "Nitrogen-rich soil"
+          ],
+          alternatives: [
+            { name: "Whitefly", scientificName: "Bemisia tabaci", confidence: 23 },
+            { name: "Thrips", scientificName: "Thrips tabaci", confidence: 15 }
+          ]
+        };
+        
+        setAnalysisResults(mockResults);
+        setIsAnalyzing(false);
+      }, 3000);
+    } finally {
       setIsAnalyzing(false);
-    }, 3000);
+    }
   };
 
   const handlePestSelect = (pest) => {
     setSelectedPest(pest);
-    // You could open a modal or navigate to detailed view here
-    console.log('Selected pest:', pest);
+    // Redirect to Wikipedia page for the selected pest
+    if (pest.wikipediaUrl) {
+      window.open(pest.wikipediaUrl, '_blank');
+    }
   };
 
-  const handleReportSubmit = (report) => {
-    setCommunityReportsData(prev => [report, ...prev]);
+  const handleReportSubmit = async (report) => {
+    try {
+      // Try to submit to backend first
+      await apiService.submitCommunityReport(report);
+      setCommunityReportsData(prev => [report, ...prev]);
+    } catch (error) {
+      console.warn('Failed to submit report to backend, using local state:', error);
+      // Fallback to local state update
+      setCommunityReportsData(prev => [report, ...prev]);
+    }
   };
 
   return (
@@ -485,7 +462,6 @@ const PestDetection = () => {
                 <span>{
                   tab?.id === 'upload' ? t('pest.tabImage') :
                   tab?.id === 'gallery' ? t('pest.tabGallery') :
-                  tab?.id === 'history' ? t('pest.tabHistory') :
                   tab?.id === 'weather' ? t('pest.tabWeather') :
                   t('pest.tabCommunity')
                 }</span>
@@ -515,14 +491,11 @@ const PestDetection = () => {
 
             {activeTab === 'gallery' && (
               <PestGallery 
-                pests={pestGalleryData}
+                pests={pestGalleryData.length > 0 ? pestGalleryData : mockPestGalleryData}
                 onPestSelect={handlePestSelect}
               />
             )}
 
-            {activeTab === 'history' && (
-              <DetectionHistory history={detectionHistoryData} />
-            )}
 
             {activeTab === 'weather' && (
               <WeatherRiskForecast forecast={weatherForecastData} />

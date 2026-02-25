@@ -10,23 +10,51 @@ import SoilTrendChart from './components/SoilTrendChart';
 import SoilTestingCard from './components/SoilTestingCard';
 import SoilRecommendationCard from './components/SoilRecommendationCard';
 import SoilParameterFilter from './components/SoilParameterFilter';
+import { apiService } from '../../lib/api';
 
 const SoilHealthMonitor = () => {
   const { t } = useTranslation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedField, setSelectedField] = useState('field_1');
   const [filters, setFilters] = useState({
-    parameter: 'all',
+    crop: 'all',
     field: 'all',
     timeRange: '30d',
-    depthMin: '',
-    depthMax: '',
+    fertilizer: 'all',
     startDate: '',
     endDate: ''
   });
+  const [soilHealthData, setSoilHealthData] = useState(null);
+  const [soilRecommendations, setSoilRecommendations] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock soil metrics data
-  const soilMetrics = [
+  // Fetch soil health data from backend
+  useEffect(() => {
+    const fetchSoilData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch soil health data
+        const healthData = await apiService.getSoilHealth();
+        setSoilHealthData(healthData);
+        
+        // Fetch soil recommendations
+        const recommendations = await apiService.getSoilRecommendations();
+        setSoilRecommendations(recommendations);
+        
+      } catch (error) {
+        console.warn('Failed to fetch soil data from backend, using mock data:', error);
+        // Keep using mock data as fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSoilData();
+  }, []);
+
+  // Use backend data if available, otherwise fallback to mock data
+  const soilMetrics = soilHealthData?.metrics || [
     {
       title: 'Nitrogen (N)',
       value: '45',
@@ -217,14 +245,6 @@ const SoilHealthMonitor = () => {
                 <div>
                   <h1 className="text-2xl font-bold text-foreground">{t('soil.title')}</h1>
                   <p className="text-muted-foreground">{t('soil.subtitle')}</p>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Button variant="outline" iconName="Download" iconPosition="left">
-                    {t('soil.export')}
-                  </Button>
-                  <Button variant="default" iconName="RefreshCw" iconPosition="left">
-                    {t('soil.refresh')}
-                  </Button>
                 </div>
               </div>
             </div>

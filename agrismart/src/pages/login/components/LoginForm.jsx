@@ -23,6 +23,19 @@ const LoginForm = () => {
     try {
       setIsLoading(true);
       const res = await signInWithPopup(auth, googleProvider);
+      
+      // Send Google auth data to backend
+      try {
+        await apiService.login({
+          email: res?.user?.email,
+          name: res?.user?.displayName,
+          provider: 'google',
+          idToken: await res?.user?.getIdToken()
+        });
+      } catch (apiError) {
+        console.warn('Backend login failed, using local auth:', apiError);
+      }
+      
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', res?.user?.email || '');
       navigate('/dashboard');
@@ -38,6 +51,16 @@ const LoginForm = () => {
     email: 'farmer@agrismart.com',
     password: 'harvest2024'
   };
+
+  // Auto-fill demo credentials for easier testing
+  React.useEffect(() => {
+    if (!formData.email && !formData.password) {
+      setFormData({
+        email: mockCredentials.email,
+        password: mockCredentials.password
+      });
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e?.target;
@@ -96,13 +119,13 @@ const LoginForm = () => {
         }
         navigate('/dashboard');
       } else {
-        // Failed login
         setErrors({
           general: `Invalid credentials. Use email: ${mockCredentials?.email} and password: ${mockCredentials?.password}`
         });
       }
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

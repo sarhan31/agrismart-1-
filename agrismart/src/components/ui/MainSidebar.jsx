@@ -2,9 +2,18 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Icon from '../AppIcon';
 
-const MainSidebar = ({ isCollapsed = false, onToggle }) => {
+const MainSidebar = ({ isCollapsed = false, onToggle, userData = null }) => {
   const location = useLocation();
   const [isExpanded, setIsExpanded] = useState(!isCollapsed);
+
+  // Default user data if none provided - in real app, this would come from authentication context
+  const defaultUserData = {
+    username: "Guest User",
+    email: "guest@farm.com",
+    phone: "+91 9876543210"
+  };
+
+  const currentUser = userData || defaultUserData;
 
   const navigationItems = [
     {
@@ -54,12 +63,23 @@ const MainSidebar = ({ isCollapsed = false, onToggle }) => {
           {/* Logo Section */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg">
-                <Icon name="Leaf" size={20} color="white" />
+              <div className="flex items-center justify-center w-8 h-8">
+                <img 
+                  src="/assets/images/agrivision-logo.jpg" 
+                  alt="AgriVision Logo" 
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden items-center justify-center w-8 h-8 bg-primary rounded-lg">
+                  <Icon name="Leaf" size={20} color="white" />
+                </div>
               </div>
               {isExpanded && (
                 <div className="flex flex-col">
-                  <span className="text-lg font-semibold text-foreground">AgriSmart</span>
+                  <span className="text-lg font-semibold text-foreground">AgriVision</span>
                   <span className="text-xs text-muted-foreground">Farm Management</span>
                 </div>
               )}
@@ -120,9 +140,10 @@ const MainSidebar = ({ isCollapsed = false, onToggle }) => {
                 <Icon name="User" size={16} color="white" />
               </div>
               {isExpanded && (
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-foreground">Farm Manager</span>
-                  <span className="text-xs text-muted-foreground">Online</span>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="text-sm font-medium text-foreground truncate">{currentUser.username}</span>
+                  <span className="text-xs text-muted-foreground truncate">{currentUser.email}</span>
+                  <span className="text-xs text-muted-foreground truncate">{currentUser.phone}</span>
                 </div>
               )}
             </div>

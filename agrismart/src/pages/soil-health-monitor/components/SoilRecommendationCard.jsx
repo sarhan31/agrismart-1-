@@ -3,6 +3,8 @@ import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
 const SoilRecommendationCard = ({ recommendation, onApplyRecommendation }) => {
+  // Handle both backend API response format and mock data format
+  const recData = recommendation?.recommendation || recommendation;
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high':
@@ -52,21 +54,21 @@ const SoilRecommendationCard = ({ recommendation, onApplyRecommendation }) => {
             <Icon name={getTypeIcon(recommendation?.type)} size={24} color="var(--color-accent)" />
           </div>
           <div>
-            <h3 className="font-semibold text-card-foreground">{recommendation?.title}</h3>
-            <p className="text-sm text-muted-foreground">{recommendation?.category}</p>
+            <h3 className="font-semibold text-card-foreground">{recData?.title || recommendation?.title}</h3>
+            <p className="text-sm text-muted-foreground">{recData?.category || recommendation?.category}</p>
           </div>
         </div>
-        <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(recommendation?.priority)}`}>
-          <Icon name={getPriorityIcon(recommendation?.priority)} size={12} />
-          <span className="capitalize">{recommendation?.priority} Priority</span>
+        <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(recData?.priority || recommendation?.priority)}`}>
+          <Icon name={getPriorityIcon(recData?.priority || recommendation?.priority)} size={12} />
+          <span className="capitalize">{recData?.priority || recommendation?.priority} Priority</span>
         </div>
       </div>
       <div className="mb-4">
-        <p className="text-sm text-muted-foreground mb-3">{recommendation?.description}</p>
+        <p className="text-sm text-muted-foreground mb-3">{recData?.description || recommendation?.description}</p>
         
-        {recommendation?.details && (
+        {(recData?.details || recommendation?.details) && (
           <div className="space-y-2">
-            {recommendation?.details?.map((detail, index) => (
+            {(recData?.details || recommendation?.details)?.map((detail, index) => (
               <div key={index} className="flex items-start space-x-2">
                 <Icon name="ChevronRight" size={14} color="var(--color-primary)" className="mt-0.5" />
                 <span className="text-sm text-card-foreground">{detail}</span>
@@ -75,13 +77,13 @@ const SoilRecommendationCard = ({ recommendation, onApplyRecommendation }) => {
           </div>
         )}
       </div>
-      {recommendation?.expectedOutcome && (
+      {(recData?.expectedOutcome || recommendation?.expectedOutcome) && (
         <div className="mb-4 p-3 bg-success/5 border border-success/20 rounded-lg">
           <div className="flex items-center space-x-2 mb-1">
             <Icon name="Target" size={16} color="var(--color-success)" />
             <span className="text-sm font-medium text-success">Expected Outcome</span>
           </div>
-          <p className="text-sm text-muted-foreground">{recommendation?.expectedOutcome}</p>
+          <p className="text-sm text-muted-foreground">{recData?.expectedOutcome || recommendation?.expectedOutcome}</p>
         </div>
       )}
       <div className="flex items-center justify-between">

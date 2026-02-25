@@ -14,16 +14,33 @@ import AlertsCard from './components/AlertsCard';
 import SoilHealthCard from './components/SoilHealthCard';
 import ScheduleCard from './components/ScheduleCard';
 import MarketPriceCard from './components/MarketPriceCard';
-import VoiceAssistantCard from './components/VoiceAssistantCard';
 import QuickStatsCard from './components/QuickStatsCard';
 
-const Dashboard = () => {
+const Dashboard = ({ userData = null }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [greeting, setGreeting] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [dashboardData, setDashboardData] = useState({
+    weather: null,
+    cropYield: null,
+    soilHealth: null,
+    marketPrices: null,
+    alerts: [],
+    quickStats: null
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Default user data if none provided
+  const defaultUserData = {
+    username: "Farm Manager",
+    email: "manager@farm.com",
+    phone: "+91 00000 00000"
+  };
+  
+  const currentUser = userData || defaultUserData;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -31,6 +48,37 @@ const Dashboard = () => {
     }, 1000);
 
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch dashboard data from backend
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const [weather, cropYield, soilHealth, marketPrices, analytics] = await Promise.allSettled([
+          apiService.getCurrentWeather(),
+          apiService.getCropYield(),
+          apiService.getSoilHealth(),
+          apiService.getMarketPrices(),
+          apiService.getAnalytics()
+        ]);
+
+        setDashboardData({
+          weather: weather.status === 'fulfilled' ? weather.value : null,
+          cropYield: cropYield.status === 'fulfilled' ? cropYield.value : null,
+          soilHealth: soilHealth.status === 'fulfilled' ? soilHealth.value : null,
+          marketPrices: marketPrices.status === 'fulfilled' ? marketPrices.value : null,
+          alerts: [], // Will be populated from analytics or separate endpoint
+          quickStats: analytics.status === 'fulfilled' ? analytics.value : null
+        });
+      } catch (error) {
+        console.warn('Failed to fetch dashboard data from backend:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
   }, []);
 
   useEffect(() => {
@@ -78,6 +126,7 @@ const Dashboard = () => {
       <MainSidebar 
         isCollapsed={sidebarCollapsed} 
         onToggle={setSidebarCollapsed} 
+        userData={currentUser}
       />
       <div className={`transition-agricultural ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-60'}`}>
         {/* Header */}
@@ -85,7 +134,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-card-foreground">
-                {greeting}, {t('dashboard.farmManager')}! 👋
+                {greeting}, {currentUser.username}! 👋
               </h1>
               <p className="text-muted-foreground mt-1">
                 {currentTime?.toLocaleDateString(locale, { 
@@ -100,9 +149,6 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="relative flex items-center space-x-3">
-              <Button variant="outline" size="sm" iconName="Bell" iconPosition="left">
-                <span className="hidden sm:inline">{t('dashboard.notifications')}</span>
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -167,32 +213,29 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Row 1 */}
             <div className="xl:col-span-1">
-              <WeatherCard />
+              <WeatherCard data={dashboardData.weather} isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <CropYieldCard />
+              <CropYieldCard data={dashboardData.cropYield} isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <QuickStatsCard />
+              <MarketPriceCard data={dashboardData.marketPrices} isLoading={isLoading} />
             </div>
 
             {/* Row 2 */}
             <div className="lg:col-span-2 xl:col-span-2">
-              <AlertsCard />
-            </div>
-            <div className="xl:col-span-1">
-              <VoiceAssistantCard />
+              <AlertsCard data={dashboardData.alerts} isLoading={isLoading} />
             </div>
 
             {/* Row 3 */}
             <div className="xl:col-span-1">
-              <SoilHealthCard />
+              <SoilHealthCard data={dashboardData.soilHealth} isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <ScheduleCard />
+              <ScheduleCard isLoading={isLoading} />
             </div>
             <div className="xl:col-span-1">
-              <MarketPriceCard />
+              <QuickStatsCard data={dashboardData.quickStats} isLoading={isLoading} />
             </div>
           </div>
 

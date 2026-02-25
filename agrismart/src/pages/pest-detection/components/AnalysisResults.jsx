@@ -5,6 +5,9 @@ import Icon from '../../../components/AppIcon';
 const AnalysisResults = ({ results }) => {
   if (!results) return null;
 
+  // Handle both backend API response format and mock data format
+  const pestData = results.detection_result || results;
+
   const getStatusColor = (severity) => {
     switch (severity?.toLowerCase()) {
       case 'low':
@@ -49,18 +52,18 @@ const AnalysisResults = ({ results }) => {
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-card-foreground mb-2">
-                {results?.pestName}
+                {pestData?.pest_type || results?.pestName}
               </h3>
               <p className="text-muted-foreground text-sm mb-3">
-                {results?.scientificName}
+                {results?.scientificName || 'Scientific classification'}
               </p>
             </div>
             <div className="flex flex-col items-end space-y-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBg(results?.severity)} ${getStatusColor(results?.severity)}`}>
-                {results?.severity} Risk
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBg(pestData?.severity || results?.severity)} ${getStatusColor(pestData?.severity || results?.severity)}`}>
+                {pestData?.severity || results?.severity} Risk
               </span>
-              <span className={`text-sm font-medium ${getConfidenceColor(results?.confidence)}`}>
-                {results?.confidence}% Confidence
+              <span className={`text-sm font-medium ${getConfidenceColor((pestData?.confidence || results?.confidence) * 100)}`}>
+                {Math.round((pestData?.confidence || results?.confidence || 0) * 100)}% Confidence
               </span>
             </div>
           </div>
@@ -68,12 +71,12 @@ const AnalysisResults = ({ results }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-3">
               <div>
-                <span className="text-sm font-medium text-card-foreground">Affected Crop:</span>
-                <p className="text-muted-foreground">{results?.cropType}</p>
+                <span className="text-sm font-medium text-card-foreground">Affected Area:</span>
+                <p className="text-muted-foreground">{pestData?.affected_area || results?.damageLevel + '%' || 'N/A'}</p>
               </div>
               <div>
-                <span className="text-sm font-medium text-card-foreground">Stage:</span>
-                <p className="text-muted-foreground">{results?.stage}</p>
+                <span className="text-sm font-medium text-card-foreground">Detection:</span>
+                <p className="text-muted-foreground">{pestData?.pest_type || results?.pestName}</p>
               </div>
               <div>
                 <span className="text-sm font-medium text-card-foreground">Damage Level:</span>
@@ -81,28 +84,46 @@ const AnalysisResults = ({ results }) => {
                   <div className="flex-1 bg-muted rounded-full h-2">
                     <div 
                       className={`h-2 rounded-full ${
-                        results?.damageLevel <= 30 ? 'bg-success' :
-                        results?.damageLevel <= 60 ? 'bg-warning' : 'bg-error'
+                        (pestData?.affected_area ? parseInt(pestData.affected_area) : results?.damageLevel) <= 30 ? 'bg-success' :
+                        (pestData?.affected_area ? parseInt(pestData.affected_area) : results?.damageLevel) <= 60 ? 'bg-warning' : 'bg-error'
                       }`}
-                      style={{ width: `${results?.damageLevel}%` }}
+                      style={{ width: `${pestData?.affected_area ? parseInt(pestData.affected_area) : results?.damageLevel || 0}%` }}
                     />
                   </div>
-                  <span className="text-sm text-muted-foreground">{results?.damageLevel}%</span>
+                  <span className="text-sm text-muted-foreground">
+                    {pestData?.affected_area || (results?.damageLevel ? `${results.damageLevel}%` : '0%')}
+                  </span>
                 </div>
               </div>
             </div>
             
             <div className="space-y-3">
               <div>
-                <span className="text-sm font-medium text-card-foreground">Favorable Conditions:</span>
-                <ul className="text-muted-foreground text-sm mt-1 space-y-1">
-                  {results?.conditions?.map((condition, index) => (
-                    <li key={index} className="flex items-center space-x-2">
-                      <Icon name="Dot" size={12} color="var(--color-muted-foreground)" />
-                      <span>{condition}</span>
-                    </li>
-                  ))}
-                </ul>
+                <span className="text-sm font-medium text-card-foreground">Treatment:</span>
+                <div className="text-muted-foreground text-sm mt-1 space-y-1">
+                  {results?.recommendations?.treatment && (
+                    <p><strong>Treatment:</strong> {results.recommendations.treatment}</p>
+                  )}
+                  {results?.recommendations?.dosage && (
+                    <p><strong>Dosage:</strong> {results.recommendations.dosage}</p>
+                  )}
+                  {results?.recommendations?.frequency && (
+                    <p><strong>Frequency:</strong> {results.recommendations.frequency}</p>
+                  )}
+                  {results?.conditions && (
+                    <div>
+                      <strong>Favorable Conditions:</strong>
+                      <ul className="mt-1 space-y-1">
+                        {results.conditions.map((condition, index) => (
+                          <li key={index} className="flex items-center space-x-2">
+                            <Icon name="Dot" size={12} color="var(--color-muted-foreground)" />
+                            <span>{condition}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
